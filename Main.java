@@ -48,5 +48,25 @@ public class Main {
             return i % 2 == 0;
         });
         System.out.println("Filter second array to retrieve only values with even index: " + array2);
+
+        String elt = array2.find((e, i) -> {
+            return i == 2;
+        });
+        System.out.println("Find element at index 2 in second array: " + elt);
+
+        int index = array.findIndex((e, i) -> {
+            return e.equals("T");
+        });
+        System.out.println("Find index of element 'T' in first array: " + index);
+
+        String lastElt = array2.findLast((e, i) -> {
+            return i > 0;
+        });
+        System.out.println("Find last element which its index is greater than 0 in second array: " + lastElt);
+
+        int lastIndex = array.findLastIndex((e, i) -> {
+            return e.equals("T");
+        });
+        System.out.println("Find last index of 'T' in first array: " + lastIndex);
     }
 }

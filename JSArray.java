@@ -152,10 +152,49 @@ public class JSArray<T extends Object> {
             }
         }
 
-
         this.elements = (T[]) filtered.toArray(new Object[filtered.size()]);
 
         return this;
+    }
+
+    public T find(BiFunction<T, Integer, Boolean> predicate) {
+        for (int i = 0; i < this.elements.length; i++) {
+            if (predicate.apply(this.elements[i], i).booleanValue()) {
+                return this.elements[i];
+            }
+        }
+
+        return null;
+    }
+
+    public int findIndex(BiFunction<T, Integer, Boolean> predicate) {
+        for (int i = 0; i < this.elements.length; i++) {
+            if (predicate.apply(this.elements[i], i).booleanValue()) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public T findLast(BiFunction<T, Integer, Boolean> predicate) {
+        for (int i = this.elements.length - 1; i >= 0; i--) {
+            if (predicate.apply(this.elements[i], i).booleanValue()) {
+                return this.elements[i];
+            }
+        }
+
+        return null;
+    }
+
+    public int findLastIndex(BiFunction<T, Integer, Boolean> predicate) {
+        for (int i = this.elements.length - 1; i >= 0; i--) {
+            if (predicate.apply(this.elements[i], i).booleanValue()) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     public JSArray push(T item) throws SizeLimitExceededException {
