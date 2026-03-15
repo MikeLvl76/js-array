@@ -11,6 +11,7 @@ public class Main {
         String[] array4 = JSArray.from(array3, (x) -> {
             return x.toLowerCase();
         });
+        JSArray<String[]> array5 = new JSArray<>(array3, array4);
 
         System.out.println("First array: " + array);
         System.out.println("Second array: " + array2);
@@ -68,5 +69,17 @@ public class Main {
             return e.equals("T");
         });
         System.out.println("Find last index of 'T' in first array: " + lastIndex);
+
+        array5.flat();
+        System.out.println("Flat fifth array: " + array5);
+
+        System.out.println("Lopping through second array to print each item with its matching index");
+        array2.forEach((e, i) -> System.out.println("[" + e + ", " + i + "]"));
+
+        boolean included = array.includes("0");
+        System.out.println("First array include '0': " + included);
+
+        int eltIndex = array2.indexOf("0");
+        System.out.println("Find index of '0' in second array: " + eltIndex);
     }
 }

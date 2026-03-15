@@ -1,8 +1,11 @@
+import java.lang.reflect.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import javax.naming.SizeLimitExceededException;
 
@@ -32,6 +35,19 @@ public class JSArray<T extends Object> {
             return null;
         }
 
+    }
+
+    private int getDimension() {
+        int dimension = 0;
+
+        Class cls = this.elements.getClass();
+
+        while (cls.isArray()) {
+            cls = cls.getComponentType();
+            dimension++;
+        }
+
+        return dimension;
     }
 
     public JSArray(@SuppressWarnings("unchecked") T... array) throws SizeLimitExceededException {
@@ -65,14 +81,18 @@ public class JSArray<T extends Object> {
         return this.elements[index];
     }
 
-    public JSArray concat(JSArray array) {
-        T[] out = Arrays.copyOf(this.elements, this.elements.length + array.get().length);
+    private T[] concat(T[] array) {
+        T[] out = Arrays.copyOf(this.elements, this.elements.length + array.length);
 
-        for (int i = 0; i < array.get().length; i++) {
-            out[i + this.elements.length] = (T) array.at(i);
+        for (int i = 0; i < array.length; i++) {
+            out[i + this.elements.length] = (T) array[i];
         }
 
-        this.elements = out;
+        return out;
+    }
+
+    public JSArray concat(JSArray array) {
+        this.elements = this.concat((T[]) array.get());
 
         return this;
     }
@@ -143,11 +163,11 @@ public class JSArray<T extends Object> {
         return this;
     }
 
-    public JSArray filter(BiFunction<T, Integer, Boolean> predicate) {
+    public JSArray filter(BiPredicate<T, Integer> predicate) {
         ArrayList<T> filtered = new ArrayList<>();
 
         for (int i = 0; i < this.elements.length; i++) {
-            if (predicate.apply(this.elements[i], i).booleanValue()) {
+            if (predicate.test(this.elements[i], i)) {
                 filtered.add(this.elements[i]);
             }
         }
@@ -157,9 +177,9 @@ public class JSArray<T extends Object> {
         return this;
     }
 
-    public T find(BiFunction<T, Integer, Boolean> predicate) {
+    public T find(BiPredicate<T, Integer> predicate) {
         for (int i = 0; i < this.elements.length; i++) {
-            if (predicate.apply(this.elements[i], i).booleanValue()) {
+            if (predicate.test(this.elements[i], i)) {
                 return this.elements[i];
             }
         }
@@ -167,9 +187,9 @@ public class JSArray<T extends Object> {
         return null;
     }
 
-    public int findIndex(BiFunction<T, Integer, Boolean> predicate) {
+    public int findIndex(BiPredicate<T, Integer> predicate) {
         for (int i = 0; i < this.elements.length; i++) {
-            if (predicate.apply(this.elements[i], i).booleanValue()) {
+            if (predicate.test(this.elements[i], i)) {
                 return i;
             }
         }
@@ -177,9 +197,9 @@ public class JSArray<T extends Object> {
         return -1;
     }
 
-    public T findLast(BiFunction<T, Integer, Boolean> predicate) {
+    public T findLast(BiPredicate<T, Integer> predicate) {
         for (int i = this.elements.length - 1; i >= 0; i--) {
-            if (predicate.apply(this.elements[i], i).booleanValue()) {
+            if (predicate.test(this.elements[i], i)) {
                 return this.elements[i];
             }
         }
@@ -187,13 +207,59 @@ public class JSArray<T extends Object> {
         return null;
     }
 
-    public int findLastIndex(BiFunction<T, Integer, Boolean> predicate) {
+    public int findLastIndex(BiPredicate<T, Integer> predicate) {
         for (int i = this.elements.length - 1; i >= 0; i--) {
-            if (predicate.apply(this.elements[i], i).booleanValue()) {
+            if (predicate.test(this.elements[i], i)) {
                 return i;
             }
         }
 
+        return -1;
+    }
+
+    public JSArray flat() {
+        int dimension = this.getDimension();
+
+        if (dimension <= 1) {
+            return this;
+        }
+
+        ArrayList<T> out = new ArrayList<>();
+
+        for (int i = 0; i < this.elements.length; i++) {
+            for (int j = 0; j < ((T[]) this.elements[i]).length; j++) {
+                out.add(((T[]) this.elements[i])[j]);
+            }
+        }
+
+        this.elements = (T[]) out.toArray(new Object[out.size()]);
+
+        return this;
+    }
+
+    /*
+     * public JSArray flatMap(BiFunction<T, Integer, ?> mapper) {
+     * return this.flat().map(mapper);
+     * }
+     */
+
+    public void forEach(BiConsumer<T, Integer> function) {
+        for (int i = 0; i < this.elements.length; i++) {
+            function.accept(this.elements[i], i);
+        }
+    }
+
+    public boolean includes(T t) {
+        return this.find((e, i) -> e.equals(t)) != null;
+    }
+
+    public int indexOf(T t) {
+        for (int i = 0; i < this.elements.length; i++) {
+            if (this.elements[i].equals(t)) {
+                return i;
+            }
+        }
+        
         return -1;
     }
 
