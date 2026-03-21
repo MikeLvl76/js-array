@@ -72,7 +72,8 @@ public class JSArray<T extends Object> {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Object> JSArray from(JSArray array, Function<T, ?> mapper) throws SizeLimitExceededException {
+    public static <T extends Object> JSArray from(JSArray array, Function<T, ?> mapper)
+            throws SizeLimitExceededException {
         T[] out = (T[]) Arrays.copyOf(array.toPrimitiveArray(), array.length);
         for (int i = 0; i < array.length; i++) {
             out[i] = (T) mapper.apply((T) array.toPrimitiveArray()[i]);
@@ -434,7 +435,7 @@ public class JSArray<T extends Object> {
         for (int i = 1; i < this.length; i++) {
             out[i - 1] = this.elements[i];
         }
-   
+
         this.elements = out;
         this.length--;
 
@@ -471,26 +472,26 @@ public class JSArray<T extends Object> {
         return isValid;
     }
 
-    // TODO
-    public JSArray sort(BiFunction<T, T, Integer> sorting) {
-        for (int i = 1; i < this.length; i++) {
-            T a = this.elements[i];
-            T b = this.elements[i - 1];
-            int result = sorting.apply(a, b);
-            if (result < 0) {
-                T copy = a;
-                a = b;
-                b = copy;
-                continue;
+    public JSArray<T> sort(BiFunction<T, T, Integer> comparator) throws SizeLimitExceededException {
+        T[] out = Arrays.copyOf(this.elements, this.length);
+
+        for (int i = 0; i < out.length - 1; i++) {
+            int minIndex = i;
+
+            for (int j = i + 1; j < out.length; j++) {
+                if (comparator.apply(out[minIndex], out[j]) > 0) {
+                    minIndex = j;
+                }
             }
-            if (result > 0) {
-                T copy = b;
-                b = a;
-                a = copy;
-                continue;
+
+            if (minIndex != i) {
+                T temp = out[i];
+                out[i] = out[minIndex];
+                out[minIndex] = temp;
             }
         }
-        return this;
+
+        return new JSArray<>(out);
     }
 
     public String toString() {

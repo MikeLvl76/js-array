@@ -137,6 +137,6 @@ public class Main {
         JSArray sorted = array7.sort((a, b) -> {
             return (int) (b - a);
         });
-        System.out.println("Sorting seventh array descendant: " + sorted);
+        System.out.println("Sorted seventh array descendant: " + sorted);
     }
 }
