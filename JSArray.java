@@ -494,6 +494,50 @@ public class JSArray<T extends Object> {
         return new JSArray<>(out);
     }
 
+    @SuppressWarnings("unchecked")
+    public JSArray splice(int start, int deleteCount, T... items) throws SizeLimitExceededException {
+        if (this.length - deleteCount + items.length > MAX_CAPACITY) {
+            throw new SizeLimitExceededException("too much values to insert");
+        }
+
+        if (this.length < deleteCount) {
+            throw new IllegalArgumentException("cannot delete more values than array can contain");
+        }
+
+        if (start >= this.length) {
+            throw new IllegalArgumentException("start index must be lower than array length - 1");
+        }
+
+        int newLength = this.length - deleteCount + items.length;
+        ArrayList<T> removed = new ArrayList<>(deleteCount);
+        ArrayList<T> out = new ArrayList<>(newLength);
+
+        int removeCount = deleteCount;
+        boolean isFilled = false;
+
+        for (int i = 0; i < this.elements.length; i++) {
+            if (i >= start && i < start + deleteCount) {
+                removed.add(this.elements[i]);
+                removeCount--;
+                continue;
+            }
+
+            if (removeCount == 0 && !isFilled) {
+                for (T item : items) {
+                    out.add(item);
+                }
+                isFilled = !isFilled;
+            }
+
+            out.add(this.elements[i]);
+        }
+
+        this.elements = (T[]) out.toArray();
+        this.length = out.size();
+
+        return new JSArray<>(removed.toArray());
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder("[");
 

@@ -134,9 +134,16 @@ public class Main {
 
         JSArray<Double> array7 = new JSArray<>(1.0, 2.0, 3.0, 4.0, 5.0);
 
-        JSArray sorted = array7.sort((a, b) -> {
+        JSArray<Double> sorted = array7.sort((a, b) -> {
             return (int) (b - a);
         });
         System.out.println("Sorted seventh array descendant: " + sorted);
+
+        JSArray<Double> spliced = sorted.splice(1, 2, new Double[0]);
+        System.out.println("Removed items from sorted array: " + spliced);
+        System.out.println("Sorted array now: " + sorted);
+
+        sorted.splice(1, 1, new Double[] {0.0, 2.0, 6.5, 4.2, 9.0, 7.6});
+        System.out.println("Removed 1 item from sorted array and replaced it with new values: " + sorted);
     }
 }
