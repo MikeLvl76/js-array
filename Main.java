@@ -145,5 +145,8 @@ public class Main {
 
         sorted.splice(1, 1, new Double[] {0.0, 2.0, 6.5, 4.2, 9.0, 7.6});
         System.out.println("Removed 1 item from sorted array and replaced it with new values: " + sorted);
+
+        JSArray array8 = array7.unshift(0.0);
+        System.out.println("Add element to the head of the weventh array: " + array8);
     }
 }

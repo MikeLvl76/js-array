@@ -538,6 +538,10 @@ public class JSArray<T extends Object> {
         return new JSArray<>(removed.toArray());
     }
 
+    public JSArray unshift(T t) throws SizeLimitExceededException {
+        return new JSArray<>(new Object[]{t}).concat(this);
+    }
+
     public String toString() {
         StringBuilder builder = new StringBuilder("[");
 
