@@ -447,6 +447,10 @@ public class JSArray<T> {
         return shifted;
     }
 
+    public int size() {
+        return this.length;
+    }
+
     public JSArray slice(int start, int end) throws SizeLimitExceededException {
         if (start >= end) {
             throw new IllegalArgumentException("start index must be lower than end index");
@@ -549,6 +553,16 @@ public class JSArray<T> {
 
     public Iterator<T> values() {
         return new JSArrayIterator<T>(i -> this.elements[i]);
+    }
+
+    public JSArray with(int index, T t) throws SizeLimitExceededException {
+        if (index < 0 || index >= length) {
+            throw new IllegalArgumentException("index value must be between 0 and array length - 1");
+        }
+        T[] out = Arrays.copyOf(this.elements, this.length);
+        out[index] = t;
+
+        return new JSArray<>(out);
     }
 
     public String toString() {

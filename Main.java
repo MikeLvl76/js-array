@@ -154,5 +154,8 @@ public class Main {
         while(it2.hasNext()) {
             System.out.println(it2.next());
         }
+
+        JSArray array9 = array8.with(2, 40.0);
+        System.out.println("New array by setting one value at given index: " + array9);
     }
 }
