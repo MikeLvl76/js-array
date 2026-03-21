@@ -28,9 +28,9 @@ public class Main {
         System.out.println("Copy values within concatenated array: " + copy);
 
         Iterator it = array2.entries();
-        System.out.println("Iterate over second array");
+        System.out.println("Iterate over second array:");
         while (it.hasNext()) {
-            System.out.println("Element: " + it.next());
+            System.out.println(it.next());
         }
 
         System.out.println("Each value in first array is a 'T': " + array.every((elt, i) -> {
@@ -148,5 +148,11 @@ public class Main {
 
         JSArray array8 = array7.unshift(0.0);
         System.out.println("Add element to the head of the weventh array: " + array8);
+
+        Iterator it2 = array8.values();
+        System.out.println("Values of eigthth array:");
+        while(it2.hasNext()) {
+            System.out.println(it2.next());
+        }
     }
 }

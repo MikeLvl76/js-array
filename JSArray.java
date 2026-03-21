@@ -2,24 +2,28 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import javax.naming.SizeLimitExceededException;
 
-public class JSArray<T extends Object> {
+public class JSArray<T> {
 
     private T[] elements;
     private final int MAX_CAPACITY = Integer.MAX_VALUE - 1;
     private int length;
 
-    private class JSArrayIterator implements Iterator<T> {
+    private class JSArrayIterator<U> implements Iterator<U> {
 
-        int index;
+        private int index;
+        private final Function<Integer, U> mapper;
 
-        public JSArrayIterator() {
+        public JSArrayIterator(Function<Integer, U> mapper) {
             this.index = 0;
+            this.mapper = mapper;
         }
 
         @Override
@@ -28,11 +32,12 @@ public class JSArray<T extends Object> {
         }
 
         @Override
-        public T next() {
-            if (this.hasNext() && this.index < length) {
-                return elements[this.index++];
+        public U next() {
+            if (!this.hasNext() || this.index >= length) {
+                return null;
+
             }
-            return null;
+            return mapper.apply(index++);
         }
 
     }
@@ -142,8 +147,8 @@ public class JSArray<T extends Object> {
         return new JSArray<>(out);
     }
 
-    public Iterator<T> entries() {
-        return new JSArrayIterator();
+    public Iterator<Entry<Integer, T>> entries() {
+        return new JSArrayIterator<Entry<Integer, T>>(i -> Map.entry(i, this.elements[i]));
     }
 
     public boolean every(BiFunction<T, Integer, Boolean> predicate) {
@@ -539,7 +544,11 @@ public class JSArray<T extends Object> {
     }
 
     public JSArray unshift(T t) throws SizeLimitExceededException {
-        return new JSArray<>(new Object[]{t}).concat(this);
+        return new JSArray<>(new Object[] { t }).concat(this);
+    }
+
+    public Iterator<T> values() {
+        return new JSArrayIterator<T>(i -> this.elements[i]);
     }
 
     public String toString() {
