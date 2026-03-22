@@ -45,7 +45,7 @@ public class JSArray<T> {
     private int getDimension() {
         int dimension = 0;
 
-        Class cls = this.elements.getClass();
+        Class<?> cls = this.elements.getClass();
 
         while (cls.isArray()) {
             cls = cls.getComponentType();
@@ -53,6 +53,12 @@ public class JSArray<T> {
         }
 
         return dimension;
+    }
+
+    @SuppressWarnings("unchecked")
+    public JSArray() {
+        this.elements = (T[]) new Object[0];
+        this.length = 0;
     }
 
     @SuppressWarnings("unchecked")
@@ -72,12 +78,12 @@ public class JSArray<T> {
         this.length = this.elements.length;
     }
 
-    public static JSArray from(String text) throws SizeLimitExceededException {
+    public static JSArray<String> from(String text) throws SizeLimitExceededException {
         return new JSArray<>(text.split(""));
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Object> JSArray from(JSArray array, Function<T, ?> mapper)
+    public static <T extends Object> JSArray<T> from(JSArray<?> array, Function<T, ?> mapper)
             throws SizeLimitExceededException {
         T[] out = (T[]) Arrays.copyOf(array.toPrimitiveArray(), array.length);
         for (int i = 0; i < array.length; i++) {
@@ -108,8 +114,7 @@ public class JSArray<T> {
         return out;
     }
 
-    @SuppressWarnings("unchecked")
-    public JSArray concat(JSArray array) throws SizeLimitExceededException {
+    public JSArray<T> concat(JSArray<T> array) throws SizeLimitExceededException {
         return new JSArray<>(this.concat((T[]) array.toPrimitiveArray()));
     }
 
@@ -120,7 +125,7 @@ public class JSArray<T> {
      * console.log([1, 2, 3, 4, 5].copyWithin(0, 3, 4));
      * // [4, 2, 3, 4, 5]
      */
-    public JSArray copyWithin(int target, int start, int end) throws SizeLimitExceededException {
+    public JSArray<T> copyWithin(int target, int start, int end) throws SizeLimitExceededException {
         if (target > end) {
             throw new IllegalArgumentException("target index must be lower than end index");
         }
@@ -164,7 +169,7 @@ public class JSArray<T> {
         return isValid;
     }
 
-    public JSArray fill(T value, int start, int end) throws SizeLimitExceededException {
+    public JSArray<T> fill(T value, int start, int end) throws SizeLimitExceededException {
         if (start >= end) {
             throw new IllegalArgumentException("start index must be lower than end index");
         }
@@ -182,7 +187,7 @@ public class JSArray<T> {
         return new JSArray<>(out);
     }
 
-    public JSArray filter(BiPredicate<T, Integer> predicate) throws SizeLimitExceededException {
+    public JSArray<T> filter(BiPredicate<T, Integer> predicate) throws SizeLimitExceededException {
         ArrayList<T> filtered = new ArrayList<>();
 
         for (int i = 0; i < this.length; i++) {
@@ -239,7 +244,7 @@ public class JSArray<T> {
 
     // TODO: optimize this and include depth
     @SuppressWarnings("unchecked")
-    public JSArray flat() throws SizeLimitExceededException {
+    public JSArray<T> flat() throws SizeLimitExceededException {
         int dimension = this.getDimension();
 
         if (dimension <= 1) {
@@ -259,8 +264,7 @@ public class JSArray<T> {
         return new JSArray<>(result);
     }
 
-    @SuppressWarnings("unchecked")
-    public <U extends Object> JSArray flatMap(BiFunction<T, Integer, U> mapper) throws SizeLimitExceededException {
+    public <U extends Object> JSArray<T> flatMap(BiFunction<T, Integer, U> mapper) throws SizeLimitExceededException {
         return new JSArray<>(this.elements).flat().map(mapper);
     }
 
@@ -328,7 +332,7 @@ public class JSArray<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public <U extends Object> JSArray map(BiFunction<T, Integer, U> mapper) throws SizeLimitExceededException {
+    public <U extends Object> JSArray<T> map(BiFunction<T, Integer, U> mapper) throws SizeLimitExceededException {
         U[] out = (U[]) new Object[this.length];
 
         for (int i = 0; i < this.length; i++) {
@@ -374,7 +378,7 @@ public class JSArray<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public <U extends Object> JSArray reduce(TriFunction<U[], T, Integer, U[]> reducer, U[] initialValue)
+    public <U extends Object> JSArray<T> reduce(TriFunction<U[], T, Integer, U[]> reducer, U[] initialValue)
             throws SizeLimitExceededException {
         U[] values = initialValue;
 
@@ -395,7 +399,7 @@ public class JSArray<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public <U extends Object> JSArray reduceRight(TriFunction<U[], T, Integer, U[]> reducer, U[] initialValue)
+    public <U extends Object> JSArray<T> reduceRight(TriFunction<U[], T, Integer, U[]> reducer, U[] initialValue)
             throws SizeLimitExceededException {
         U[] values = initialValue;
 
@@ -415,7 +419,7 @@ public class JSArray<T> {
         return value;
     }
 
-    public JSArray reverse() throws SizeLimitExceededException {
+    public JSArray<T> reverse() throws SizeLimitExceededException {
         @SuppressWarnings("unchecked")
         T[] reversed = (T[]) new Object[this.length];
 
@@ -451,7 +455,7 @@ public class JSArray<T> {
         return this.length;
     }
 
-    public JSArray slice(int start, int end) throws SizeLimitExceededException {
+    public JSArray<T> slice(int start, int end) throws SizeLimitExceededException {
         if (start >= end) {
             throw new IllegalArgumentException("start index must be lower than end index");
         }
@@ -504,7 +508,7 @@ public class JSArray<T> {
     }
 
     @SuppressWarnings("unchecked")
-    public JSArray splice(int start, int deleteCount, T... items) throws SizeLimitExceededException {
+    public JSArray<T> splice(int start, int deleteCount, T... items) throws SizeLimitExceededException {
         if (this.length - deleteCount + items.length > MAX_CAPACITY) {
             throw new SizeLimitExceededException("too much values to insert");
         }
@@ -544,18 +548,19 @@ public class JSArray<T> {
         this.elements = (T[]) out.toArray();
         this.length = out.size();
 
-        return new JSArray<>(removed.toArray());
+        return new JSArray<>((T[]) removed.toArray());
     }
 
-    public JSArray unshift(T t) throws SizeLimitExceededException {
-        return new JSArray<>(new Object[] { t }).concat(this);
+    @SuppressWarnings("unchecked")
+    public JSArray<T> unshift(T t) throws SizeLimitExceededException {
+        return new JSArray<>((T[]) new Object[] { t }).concat(this);
     }
 
     public Iterator<T> values() {
         return new JSArrayIterator<T>(i -> this.elements[i]);
     }
 
-    public JSArray with(int index, T t) throws SizeLimitExceededException {
+    public JSArray<T> with(int index, T t) throws SizeLimitExceededException {
         if (index < 0 || index >= length) {
             throw new IllegalArgumentException("index value must be between 0 and array length - 1");
         }
