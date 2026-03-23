@@ -64,7 +64,10 @@ public class JSArray<T> {
     @SuppressWarnings("unchecked")
     public JSArray(int _length) throws SizeLimitExceededException {
         if (length > MAX_CAPACITY) {
-            throw new SizeLimitExceededException("Cannot exceed max size: " + MAX_CAPACITY);
+            throw new SizeLimitExceededException("cannot exceed max size: " + MAX_CAPACITY);
+        }
+        if (_length < 0) {
+            throw new IllegalArgumentException("negative length not allowed");
         }
         this.length = _length;
         this.elements = (T[]) new Object[_length];
@@ -72,7 +75,7 @@ public class JSArray<T> {
 
     public JSArray(@SuppressWarnings("unchecked") T... values) throws SizeLimitExceededException {
         if (values.length > MAX_CAPACITY) {
-            throw new SizeLimitExceededException("Cannot exceed max size: " + MAX_CAPACITY);
+            throw new SizeLimitExceededException("cannot exceed max size: " + MAX_CAPACITY);
         }
         this.elements = values;
         this.length = this.elements.length;
