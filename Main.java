@@ -8,13 +8,13 @@ public class Main {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) throws SizeLimitExceededException {
-        JSArray<String> array = new JSArray<>("T", "E", "S", "T");
-        JSArray<String> array2 = new JSArray<>("A", "B", "C");
+        JSArray<String> array = new JSArray("T", "E", "S", "T");
+        JSArray<String> array2 = new JSArray("A", "B", "C");
         JSArray<String> array3 = JSArray.from("TEXT");
         JSArray<String> array4 = JSArray.from(array3, (x) -> {
             return ((String) x).toLowerCase();
         });
-        JSArray<String[]> array5 = new JSArray<>(array3.toPrimitiveArray(), array4.toPrimitiveArray());
+        JSArray<String[]> array5 = new JSArray(array3.toPrimitiveArray(), array4.toPrimitiveArray());
 
         System.out.println("First array: " + array);
         System.out.println("Second array: " + array2);

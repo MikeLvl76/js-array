@@ -1,6 +1,5 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -74,7 +73,9 @@ public class JSArray<T> implements JSArrayUtils {
     @SuppressWarnings("unchecked")
     public static <T extends Object> JSArray<T> from(JSArray<?> array, Function<T, ?> mapper)
             throws SizeLimitExceededException {
-        T[] out = (T[]) Arrays.copyOf(array.toPrimitiveArray(), array.length);
+
+        T[] out = JSArrayUtils.copyArray((T[]) array.toPrimitiveArray());
+        
         for (int i = 0; i < array.length; i++) {
             out[i] = (T) mapper.apply((T) array.toPrimitiveArray()[i]);
         }
@@ -108,7 +109,8 @@ public class JSArray<T> implements JSArrayUtils {
         }
 
         ArrayDeque<T> range = new ArrayDeque<>();
-        T[] out = Arrays.copyOf(this.elements, this.length);
+
+        T[] out = JSArrayUtils.copyArray(this.elements);
 
         for (int i = 0; i < out.length; i++) {
             if (i >= start && i < end) {
@@ -151,7 +153,7 @@ public class JSArray<T> implements JSArrayUtils {
             throw new IllegalArgumentException("indices lust be lower than array size");
         }
 
-        T[] out = Arrays.copyOf(this.elements, this.length);
+        T[] out = JSArrayUtils.copyArray(this.elements);
 
         for (int i = start; i < end; i++) {
             out[i] = value;
@@ -460,7 +462,7 @@ public class JSArray<T> implements JSArrayUtils {
     }
 
     public JSArray<T> sort(BiFunction<T, T, Integer> comparator) throws SizeLimitExceededException {
-        T[] out = Arrays.copyOf(this.elements, this.length);
+        T[] out = JSArrayUtils.copyArray(this.elements);
 
         for (int i = 0; i < out.length - 1; i++) {
             int minIndex = i;
@@ -537,7 +539,8 @@ public class JSArray<T> implements JSArrayUtils {
         if (index < 0 || index >= length) {
             throw new IllegalArgumentException("index value must be between 0 and array length - 1");
         }
-        T[] out = Arrays.copyOf(this.elements, this.length);
+
+        T[] out = JSArrayUtils.copyArray(this.elements);
         out[index] = t;
 
         return new JSArray<>(out);
