@@ -65,7 +65,7 @@ public class Main {
         });
         System.out.println("Find last index of 'T' in first array: " + lastIndex);
 
-        JSArray flatted = array5.flat();
+        JSArray flatted = array5.flat(1);
         System.out.println("Flat fifth array: " + flatted);
 
         System.out.println("Lopping through second array to print each item with its matching index");
@@ -143,7 +143,7 @@ public class Main {
         System.out.println("Removed items from sorted array: " + spliced);
         System.out.println("Sorted array now: " + sorted);
 
-        sorted.splice(1, 1, new Double[] {0.0, 2.0, 6.5, 4.2, 9.0, 7.6});
+        sorted.splice(1, 1, new Double[] { 0.0, 2.0, 6.5, 4.2, 9.0, 7.6 });
         System.out.println("Removed 1 item from sorted array and replaced it with new values: " + sorted);
 
         JSArray array8 = array7.unshift(0.0);
@@ -151,11 +151,16 @@ public class Main {
 
         Iterator it2 = array8.values();
         System.out.println("Values of eigthth array:");
-        while(it2.hasNext()) {
+        while (it2.hasNext()) {
             System.out.println(it2.next());
         }
 
         JSArray array9 = array8.with(2, 40.0);
         System.out.println("New array by setting one value at given index: " + array9);
+
+        Double[][][][] d = {{{{1.0,2.0},{3.0,4.0}},{{5.0,6.0},{7.0,8.0}}},{{{9.0,10.0},{11.0,12.0}},{{13.0,14.0},{15.0,16.0}}}};
+        JSArray<Double[][][]> array10 = new JSArray(d);
+        JSArray flatten = array10.flat(3);
+        System.out.println("Flattend 4 dimensionnal array: " + flatten);
     }
 }

@@ -10,10 +10,9 @@ import java.util.function.BiPredicate;
 import java.util.function.Function;
 import javax.naming.SizeLimitExceededException;
 
-public class JSArray<T> {
+public class JSArray<T> implements JSArrayUtils {
 
     private T[] elements;
-    private final int MAX_CAPACITY = Integer.MAX_VALUE - 1;
     private int length;
 
     private class JSArrayIterator<U> implements Iterator<U> {
@@ -40,19 +39,6 @@ public class JSArray<T> {
             return mapper.apply(index++);
         }
 
-    }
-
-    private int getDimension() {
-        int dimension = 0;
-
-        Class<?> cls = this.elements.getClass();
-
-        while (cls.isArray()) {
-            cls = cls.getComponentType();
-            dimension++;
-        }
-
-        return dimension;
     }
 
     @SuppressWarnings("unchecked")
@@ -121,13 +107,6 @@ public class JSArray<T> {
         return new JSArray<>(this.concat((T[]) array.toPrimitiveArray()));
     }
 
-    /*
-     * console.log([1, 2, 3, 4, 5].copyWithin(0, 3));
-     * // [4, 5, 3, 4, 5]
-     * 
-     * console.log([1, 2, 3, 4, 5].copyWithin(0, 3, 4));
-     * // [4, 2, 3, 4, 5]
-     */
     public JSArray<T> copyWithin(int target, int start, int end) throws SizeLimitExceededException {
         if (target > end) {
             throw new IllegalArgumentException("target index must be lower than end index");
@@ -245,30 +224,31 @@ public class JSArray<T> {
         return -1;
     }
 
-    // TODO: optimize this and include depth
     @SuppressWarnings("unchecked")
-    public JSArray<T> flat() throws SizeLimitExceededException {
-        int dimension = this.getDimension();
+    private T[] deepFlat(T[] array, int depth) {
+        int dimension = getDimension(array);
 
-        if (dimension <= 1) {
-            return this;
+        if (dimension <= 1 || depth <= 0) {
+            return array;
         }
 
-        ArrayList<T> out = new ArrayList<>();
+        T[] out = (T[]) new Object[0];
 
-        for (int i = 0; i < this.length; i++) {
-            for (int j = 0; j < ((T[]) this.elements[i]).length; j++) {
-                out.add(((T[]) this.elements[i])[j]);
-            }
+        for (int i = 1; i < array.length; i++) {
+            T[] concatenated = concatArrays(deepFlat((T[]) array[i - 1], depth - 1), deepFlat((T[]) array[i], depth - 1));
+            out = concatArrays(out, concatenated);
         }
 
-        T[] result = (T[]) out.toArray(new Object[out.size()]);
-
-        return new JSArray<>(result);
+        return this.deepFlat(out, depth - 1);
     }
 
-    public <U extends Object> JSArray<T> flatMap(BiFunction<T, Integer, U> mapper) throws SizeLimitExceededException {
-        return new JSArray<>(this.elements).flat().map(mapper);
+    public JSArray<T> flat(int depth) throws SizeLimitExceededException {
+        T[] out = this.deepFlat(this.elements, depth);
+        return new JSArray<>(out);
+    }
+
+    public <U extends Object> JSArray<T> flatMap(BiFunction<T, Integer, U> mapper, int depth) throws SizeLimitExceededException {
+        return new JSArray<>(this.elements).flat(depth).map(mapper);
     }
 
     public void forEach(BiConsumer<T, Integer> function) {
