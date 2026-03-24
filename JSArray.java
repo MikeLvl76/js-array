@@ -93,18 +93,9 @@ public class JSArray<T> implements JSArrayUtils {
         return this.elements[index];
     }
 
-    private T[] concat(T[] array) {
-        T[] out = Arrays.copyOf(this.elements, this.length + array.length);
-
-        for (int i = 0; i < array.length; i++) {
-            out[i + this.length] = (T) array[i];
-        }
-
-        return out;
-    }
-
     public JSArray<T> concat(JSArray<T> array) throws SizeLimitExceededException {
-        return new JSArray<>(this.concat((T[]) array.toPrimitiveArray()));
+        T[] result = concatArrays(this.elements, array.toPrimitiveArray());
+        return new JSArray<>(result);
     }
 
     public JSArray<T> copyWithin(int target, int start, int end) throws SizeLimitExceededException {
@@ -355,7 +346,7 @@ public class JSArray<T> implements JSArrayUtils {
             throw new SizeLimitExceededException("Cannot push to array, size exceeded");
         }
 
-        this.elements = this.concat(items);
+        this.elements = concatArrays(this.elements, items);
         this.length = this.elements.length;
         return this.length;
     }
@@ -492,7 +483,8 @@ public class JSArray<T> implements JSArrayUtils {
 
     @SuppressWarnings("unchecked")
     public JSArray<T> splice(int start, int deleteCount, T... items) throws SizeLimitExceededException {
-        if (this.length - deleteCount + items.length > MAX_CAPACITY) {
+        int newLength = this.length - deleteCount + items.length;
+        if (newLength > MAX_CAPACITY) {
             throw new SizeLimitExceededException("too much values to insert");
         }
 
@@ -503,8 +495,6 @@ public class JSArray<T> implements JSArrayUtils {
         if (start >= this.length) {
             throw new IllegalArgumentException("start index must be lower than array length - 1");
         }
-
-        int newLength = this.length - deleteCount + items.length;
         ArrayList<T> removed = new ArrayList<>(deleteCount);
         ArrayList<T> out = new ArrayList<>(newLength);
 

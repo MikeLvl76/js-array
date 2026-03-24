@@ -18,7 +18,7 @@ public class Main {
 
         System.out.println("First array: " + array);
         System.out.println("Second array: " + array2);
-        System.out.println("Thrid array: " + array3);
+        System.out.println("Third array: " + array3);
         System.out.println("Fourth array: " + array4);
 
         JSArray concatenated = array2.concat(array);
