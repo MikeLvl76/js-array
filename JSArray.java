@@ -61,7 +61,7 @@ public class JSArray<T> implements JSArrayUtils {
             throw new SizeLimitExceededException("cannot exceed max size: " + MAX_CAPACITY);
         }
         this.elements = values;
-        this.length = this.elements.length;
+        this.length = values.length;
     }
 
     public static JSArray<String> from(String text) throws SizeLimitExceededException {
@@ -235,7 +235,7 @@ public class JSArray<T> implements JSArrayUtils {
         return new JSArray<>(out);
     }
 
-    public <U extends Object> JSArray<T> flatMap(BiFunction<T, Integer, U> mapper, int depth)
+    public <U extends Object> JSArray<U> flatMap(BiFunction<T, Integer, U> mapper, int depth)
             throws SizeLimitExceededException {
         return new JSArray<>(this.elements).flat(depth).map(mapper);
     }
@@ -304,14 +304,14 @@ public class JSArray<T> implements JSArrayUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public <U extends Object> JSArray<T> map(BiFunction<T, Integer, U> mapper) throws SizeLimitExceededException {
+    public <U extends Object> JSArray<U> map(BiFunction<T, Integer, U> mapper) throws SizeLimitExceededException {
         U[] out = (U[]) new Object[this.length];
 
         for (int i = 0; i < this.length; i++) {
             out[i] = mapper.apply(this.elements[i], i);
         }
 
-        return new JSArray<>((T[]) out);
+        return new JSArray<>(out);
     }
 
     public T pop() {
