@@ -495,20 +495,8 @@ public class JSArray<T> implements JSArrayUtils {
             throw new IllegalArgumentException("start index must be lower than array length - 1");
         }
 
-        if (deleteCount == 0) {
-            JSArray<T> left = this.slice(0, start);
-            JSArray<T> right = this.slice(start, length);
-
-            T[] out = concatArrays(concatArrays(left.toPrimitiveArray(), items), right.toPrimitiveArray());
-
-            this.elements = out;
-            this.length = out.length;
-
-            return new JSArray<T>();
-        }
-
+        JSArray<T> removed = deleteCount == 0 ? new JSArray<>() : this.slice(start, start + deleteCount);
         JSArray<T> left = this.slice(0, start);
-        JSArray<T> removed = this.slice(start, start + deleteCount);
         JSArray<T> right = this.slice(start + deleteCount, length);
 
         T[] out = concatArrays(concatArrays(left.toPrimitiveArray(), items), right.toPrimitiveArray());
