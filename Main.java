@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) throws SizeLimitExceededException {
         JSArray<String> array = new JSArray("T", "E", "S", "T");
         JSArray<String> array2 = new JSArray("A", "B", "C");
-        JSArray<String> array3 = JSArray.from("TEXT");
+        JSArray<String> array3 = JSArray.from("TEXT", "");
         JSArray<String> array4 = JSArray.from(array3, (x) -> x.toLowerCase());
         JSArray<String[]> array5 = new JSArray(array3.toPrimitiveArray(), array4.toPrimitiveArray());
 

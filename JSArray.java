@@ -64,8 +64,8 @@ public class JSArray<T> implements JSArrayUtils {
         this.length = values.length;
     }
 
-    public static JSArray<String> from(String text) throws SizeLimitExceededException {
-        return new JSArray<>(text.split(""));
+    public static JSArray<String> from(String text, String sep) throws SizeLimitExceededException {
+        return new JSArray<>(text.split(sep));
     }
 
     @SuppressWarnings("unchecked")
