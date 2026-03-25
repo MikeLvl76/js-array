@@ -314,6 +314,7 @@ public class JSArray<T> implements JSArrayUtils {
         return new JSArray<>(out);
     }
 
+    @SuppressWarnings("unchecked")
     public T pop() {
         T popped = null;
 
@@ -321,7 +322,6 @@ public class JSArray<T> implements JSArrayUtils {
             return popped;
         }
 
-        @SuppressWarnings("unchecked")
         T[] array = (T[]) new Object[this.length - 1];
 
         for (int i = 0; i < this.length; i++) {
@@ -391,8 +391,8 @@ public class JSArray<T> implements JSArrayUtils {
         return value;
     }
 
+    @SuppressWarnings("unchecked")
     public JSArray<T> reverse() throws SizeLimitExceededException {
-        @SuppressWarnings("unchecked")
         T[] reversed = (T[]) new Object[this.length];
 
         for (int i = 0; i < this.length; i++) {
@@ -402,6 +402,7 @@ public class JSArray<T> implements JSArrayUtils {
         return new JSArray<>(reversed);
     }
 
+    @SuppressWarnings("unchecked")
     public T shift() {
         T shifted = null;
 
@@ -409,7 +410,6 @@ public class JSArray<T> implements JSArrayUtils {
             return shifted;
         }
 
-        @SuppressWarnings("unchecked")
         T[] out = (T[]) new Object[this.length - 1];
 
         shifted = this.elements[0];
@@ -444,17 +444,14 @@ public class JSArray<T> implements JSArrayUtils {
         return new JSArray<>(out);
     }
 
-    public boolean some(BiFunction<T, Integer, Boolean> predicate) {
-        boolean isValid = false;
-
+    public boolean some(BiPredicate<T, Integer> predicate) {
         for (int i = 0; i < this.length; i++) {
-            isValid = predicate.apply(this.elements[i], i).booleanValue();
-            if (isValid) {
-                return isValid;
+            if (predicate.test(this.elements[i], i)) {
+                return true;
             }
         }
 
-        return isValid;
+        return false;
     }
 
     public JSArray<T> sort(BiFunction<T, T, Integer> comparator) throws SizeLimitExceededException {
