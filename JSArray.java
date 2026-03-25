@@ -1,5 +1,3 @@
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -75,7 +73,7 @@ public class JSArray<T> implements JSArrayUtils {
             throws SizeLimitExceededException {
 
         T[] out = JSArrayUtils.copyArray((T[]) array.toPrimitiveArray());
-        
+
         for (int i = 0; i < array.length; i++) {
             out[i] = (T) mapper.apply((T) array.toPrimitiveArray()[i]);
         }
@@ -108,19 +106,12 @@ public class JSArray<T> implements JSArrayUtils {
             throw new IllegalArgumentException("start index must be lower than end index");
         }
 
-        ArrayDeque<T> range = new ArrayDeque<>();
-
         T[] out = JSArrayUtils.copyArray(this.elements);
-
-        for (int i = 0; i < out.length; i++) {
-            if (i >= start && i < end) {
-                range.add(out[i]);
-            }
-        }
+        JSArray<T> range = this.slice(start, end);
 
         int i = target;
-        while (!range.isEmpty() && i < out.length) {
-            out[i] = range.pop();
+        for (int j = 0; j < range.size(); j++) {
+            out[i] = range.at(j);
             i++;
         }
 
@@ -162,17 +153,19 @@ public class JSArray<T> implements JSArrayUtils {
         return new JSArray<>(out);
     }
 
+    @SuppressWarnings("unchecked")
     public JSArray<T> filter(BiPredicate<T, Integer> predicate) throws SizeLimitExceededException {
-        ArrayList<T> filtered = new ArrayList<>();
+        T[] filtered = (T[]) new Object[this.length];
+        int i = 0;
 
-        for (int i = 0; i < this.length; i++) {
-            if (predicate.test(this.elements[i], i)) {
-                filtered.add(this.elements[i]);
+        for (int j = 0; j < this.length; j++) {
+            if (predicate.test(this.elements[j], j)) {
+                filtered[i] = this.elements[j];
+                i++;
             }
         }
 
-        @SuppressWarnings("unchecked")
-        T[] result = (T[]) filtered.toArray(new Object[filtered.size()]);
+        T[] result = removeNullValues(filtered);
 
         return new JSArray<>(result);
     }
@@ -228,7 +221,9 @@ public class JSArray<T> implements JSArrayUtils {
         T[] out = (T[]) new Object[0];
 
         for (int i = 1; i < array.length; i++) {
-            T[] concatenated = concatArrays(deepFlat((T[]) array[i - 1], depth - 1), deepFlat((T[]) array[i], depth - 1));
+            T[] concatenated = concatArrays(deepFlat((T[]) array[i - 1], depth - 1),
+                    deepFlat((T[]) array[i], depth - 1));
+
             out = concatArrays(out, concatenated);
         }
 
@@ -240,7 +235,8 @@ public class JSArray<T> implements JSArrayUtils {
         return new JSArray<>(out);
     }
 
-    public <U extends Object> JSArray<T> flatMap(BiFunction<T, Integer, U> mapper, int depth) throws SizeLimitExceededException {
+    public <U extends Object> JSArray<T> flatMap(BiFunction<T, Integer, U> mapper, int depth)
+            throws SizeLimitExceededException {
         return new JSArray<>(this.elements).flat(depth).map(mapper);
     }
 
@@ -431,21 +427,21 @@ public class JSArray<T> implements JSArrayUtils {
         return this.length;
     }
 
+    @SuppressWarnings("unchecked")
     public JSArray<T> slice(int start, int end) throws SizeLimitExceededException {
         if (start >= end) {
             throw new IllegalArgumentException("start index must be lower than end index");
         }
 
-        ArrayList<T> out = new ArrayList<>();
+        T[] out = (T[]) new Object[end - start];
 
-        for (int i = start; i < end; i++) {
-            out.add(this.elements[i]);
+        int i = 0;
+        for (int j = start; j < end; j++) {
+            out[i] = this.elements[j];
+            i++;
         }
 
-        @SuppressWarnings("unchecked")
-        T[] result = (T[]) out.toArray(new Object[out.size()]);
-
-        return new JSArray<>(result);
+        return new JSArray<>(out);
     }
 
     public boolean some(BiFunction<T, Integer, Boolean> predicate) {
@@ -486,44 +482,41 @@ public class JSArray<T> implements JSArrayUtils {
     @SuppressWarnings("unchecked")
     public JSArray<T> splice(int start, int deleteCount, T... items) throws SizeLimitExceededException {
         int newLength = this.length - deleteCount + items.length;
+
         if (newLength > MAX_CAPACITY) {
             throw new SizeLimitExceededException("too much values to insert");
         }
 
-        if (this.length < deleteCount) {
+        if (this.length < deleteCount || start + deleteCount > this.length) {
             throw new IllegalArgumentException("cannot delete more values than array can contain");
         }
 
         if (start >= this.length) {
             throw new IllegalArgumentException("start index must be lower than array length - 1");
         }
-        ArrayList<T> removed = new ArrayList<>(deleteCount);
-        ArrayList<T> out = new ArrayList<>(newLength);
 
-        int removeCount = deleteCount;
-        boolean isFilled = false;
+        if (deleteCount == 0) {
+            JSArray<T> left = this.slice(0, start);
+            JSArray<T> right = this.slice(start, length);
 
-        for (int i = 0; i < this.elements.length; i++) {
-            if (i >= start && i < start + deleteCount) {
-                removed.add(this.elements[i]);
-                removeCount--;
-                continue;
-            }
+            T[] out = concatArrays(concatArrays(left.toPrimitiveArray(), items), right.toPrimitiveArray());
 
-            if (removeCount == 0 && !isFilled) {
-                for (T item : items) {
-                    out.add(item);
-                }
-                isFilled = !isFilled;
-            }
+            this.elements = out;
+            this.length = out.length;
 
-            out.add(this.elements[i]);
+            return new JSArray<T>();
         }
 
-        this.elements = (T[]) out.toArray();
-        this.length = out.size();
+        JSArray<T> left = this.slice(0, start);
+        JSArray<T> removed = this.slice(start, start + deleteCount);
+        JSArray<T> right = this.slice(start + deleteCount, length);
 
-        return new JSArray<>((T[]) removed.toArray());
+        T[] out = concatArrays(concatArrays(left.toPrimitiveArray(), items), right.toPrimitiveArray());
+
+        this.elements = out;
+        this.length = out.length;
+
+        return removed;
     }
 
     @SuppressWarnings("unchecked")

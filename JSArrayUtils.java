@@ -47,4 +47,25 @@ public interface JSArrayUtils {
 
         return out;
     }
+
+    @SuppressWarnings("unchecked")
+    default <T> T[] removeNullValues(T[] array) {
+        int count = 0;
+        for (T t : array) {
+            if (t == null) {
+                count++;
+            }
+        }
+
+        T[] out = (T[]) new Object[array.length - count];
+        int i = 0;
+        for (T t : array) {
+            if (t != null) {
+                out[i] = t;
+                i++;
+            }
+        }
+
+        return out;
+    }
 }

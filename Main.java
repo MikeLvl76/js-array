@@ -143,11 +143,11 @@ public class Main {
         System.out.println("Removed items from sorted array: " + spliced);
         System.out.println("Sorted array now: " + sorted);
 
-        sorted.splice(1, 1, new Double[] { 0.0, 2.0, 6.5, 4.2, 9.0, 7.6 });
+        sorted.splice(1, 0, new Double[] { 0.0, 2.0, 6.5, 4.2, 9.0, 7.6 });
         System.out.println("Removed 1 item from sorted array and replaced it with new values: " + sorted);
 
         JSArray array8 = array7.unshift(0.0);
-        System.out.println("Add element to the head of the weventh array: " + array8);
+        System.out.println("Add element to the head of the seventh array: " + array8);
 
         Iterator it2 = array8.values();
         System.out.println("Values of eigthth array:");
