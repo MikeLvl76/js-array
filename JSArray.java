@@ -69,13 +69,13 @@ public class JSArray<T> implements JSArrayUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Object> JSArray<T> from(JSArray<?> array, Function<T, ?> mapper)
+    public static <T extends Object> JSArray<T> from(JSArray<?> array, BiFunction<T, Integer, ?> mapper)
             throws SizeLimitExceededException {
 
         T[] out = JSArrayUtils.copyArray((T[]) array.toPrimitiveArray());
 
         for (int i = 0; i < array.length; i++) {
-            out[i] = (T) mapper.apply((T) array.toPrimitiveArray()[i]);
+            out[i] = (T) mapper.apply((T) array.toPrimitiveArray()[i], i);
         }
 
         return new JSArray<>(out);
