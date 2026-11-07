@@ -24,7 +24,7 @@ public interface JSArrayUtils {
         int j = 0;
         int k = 0;
 
-        while(i < c.length) {
+        while (i < c.length) {
             if (j < a.length) {
                 c[i] = a[j];
                 j++;
@@ -32,7 +32,7 @@ public interface JSArrayUtils {
                 c[i] = b[k];
                 k++;
             }
-            i++;   
+            i++;
         }
 
         return c;
@@ -41,9 +41,7 @@ public interface JSArrayUtils {
     @SuppressWarnings("unchecked")
     static <T> T[] copyArray(T[] array) {
         T[] out = (T[]) new Object[array.length];
-        for (int i = 0; i < out.length; i++) {
-            out[i] = array[i];
-        }
+        System.arraycopy(array, 0, out, 0, out.length);
 
         return out;
     }

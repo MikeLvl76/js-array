@@ -1,44 +1,42 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-
 import javax.naming.SizeLimitExceededException;
 
 public class Main {
 
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) throws SizeLimitExceededException {
-        JSArray<String> array = new JSArray("T", "E", "S", "T");
-        JSArray<String> array2 = new JSArray("A", "B", "C");
+        JSArray<String> array = new JSArray<>("T", "E", "S", "T");
+        JSArray<String> array2 = new JSArray<>("A", "B", "C");
         JSArray<String> array3 = JSArray.from("TEXT", "");
         JSArray<String> array4 = JSArray.from(array3, (x, i) -> x.toLowerCase());
-        JSArray<String[]> array5 = new JSArray(array3.toPrimitiveArray(), array4.toPrimitiveArray());
 
         System.out.println("First array: " + array);
         System.out.println("Second array: " + array2);
         System.out.println("Third array: " + array3);
         System.out.println("Fourth array: " + array4);
 
-        JSArray concatenated = array2.concat(array);
+        JSArray<String> concatenated = array2.concat(array);
         System.out.println("Concatenate second array with first: " + concatenated);
 
-        JSArray copy = concatenated.copyWithin(1, 3, 6);
+        JSArray<String> copy = concatenated.copyWithin(1, 3, 6);
         System.out.println("Copy values within concatenated array: " + copy);
 
-        Iterator it = array2.entries();
+        Iterator<?> it = array2.entries();
         System.out.println("Iterate over second array:");
         while (it.hasNext()) {
             System.out.println(it.next());
         }
 
-        System.out.println("Each value in first array is a 'T': " + array.every((elt, i) -> {
-            return elt.equals("T");
-        }));
+        System.out.println("Each value in first array is a 'T': "
+                + array.every((elt, i) -> {
+                    return elt.equals("T");
+                }));
 
-        JSArray filled = concatenated.fill("0", 2, 4);
+        JSArray<String> filled = concatenated.fill("0", 2, 4);
         System.out.println("Fill concatenated array with '0' at index 2 to index 3: " + filled);
 
-        JSArray filtered = array2.filter((elt, i) -> {
+        JSArray<String> filtered = array2.filter((elt, i) -> {
             return i % 2 == 0;
         });
         System.out.println("Filter second array to retrieve only values with even index: " + filtered);
@@ -62,9 +60,6 @@ public class Main {
             return e.equals("T");
         });
         System.out.println("Find last index of 'T' in first array: " + lastIndex);
-
-        JSArray flatted = array5.flat(1);
-        System.out.println("Flat fifth array: " + flatted);
 
         System.out.println("Lopping through second array to print each item with its matching index");
         array2.forEach((e, i) -> System.out.println("[" + e + ", " + i + "]"));
@@ -90,7 +85,7 @@ public class Main {
         int lastIdx = array2.lastIndexOf("A", 2);
         System.out.println("Get last index of 'A' of second array: " + lastIdx);
 
-        JSArray mapped = array2.map((e, i) -> {
+        JSArray<?> mapped = array2.map((e, i) -> {
             return i;
         });
         System.out.println("Map second array to have indices instead of values: " + mapped);
@@ -98,37 +93,42 @@ public class Main {
         String popped = array.pop();
         System.out.println("Pop element from first array: " + popped + ", first array: " + array);
 
-        int length = array.push(new String[] { "H", "E", "L", "L", "O" });
+        int length = array.push(new String[] {"H", "E", "L", "L", "O"});
         System.out.println("Push elements into first array, new array: " + array + " (" + length + ")");
 
-        JSArray reduced = array.reduce((acc, curr, idx) -> {
-            ArrayList<String> list = new ArrayList<>(Arrays.asList(acc));
-            if (idx % 2 == 0) {
-                list.add(curr);
-            }
-            return list.toArray(new String[0]);
-        }, new String[0]);
+        JSArray<String> reduced = array.reduce(
+                (acc, curr, idx) -> {
+                    ArrayList<String> list = new ArrayList<>(Arrays.asList(acc));
+                    if (idx % 2 == 0) {
+                        list.add(curr);
+                    }
+                    return list.toArray(String[]::new);
+                },
+                new String[0]);
         System.out.println("Reduce first array to contains only element at which index is even: " + reduced);
 
         JSArray<Double> array6 = new JSArray<>(1.0, 2.0, 3.0, 4.0, 5.0);
-        double reducedValue = array6.reduce((acc, curr, idx) -> {
-            return acc + curr;
-        }, 0);
+        double reducedValue = array6.reduce(
+                (acc, curr, idx) -> {
+                    return acc + curr;
+                },
+                0);
 
         System.out.println("Sum all numbers of the sixth array: " + reducedValue);
 
-        JSArray reversed = array6.reverse();
+        JSArray<Double> reversed = array6.reverse();
         System.out.println("Reverse sixth array: " + reversed);
 
         double shifted = array6.shift();
         System.out.println("Shift head of the sixth array: " + shifted + ", sixth array: " + array6);
 
-        JSArray sliced = array6.slice(1, 3);
+        JSArray<Double> sliced = array6.slice(1, 3);
         System.out.println("Slice sixth array from index 1 to index 2: " + sliced);
 
-        System.out.println("Sixth array contains at least one even value: " + array6.some((e, i) -> {
-            return e % 2 == 0;
-        }));
+        System.out.println("Sixth array contains at least one even value: "
+                + array6.some((e, i) -> {
+                    return e % 2 == 0;
+                }));
 
         JSArray<Double> array7 = new JSArray<>(1.0, 2.0, 3.0, 4.0, 5.0);
 
@@ -141,24 +141,27 @@ public class Main {
         System.out.println("Removed items from sorted array: " + spliced);
         System.out.println("Sorted array now: " + sorted);
 
-        sorted.splice(1, 0, new Double[] { 0.0, 2.0, 6.5, 4.2, 9.0, 7.6 });
+        sorted.splice(1, 0, new Double[] {0.0, 2.0, 6.5, 4.2, 9.0, 7.6});
         System.out.println("Removed 1 item from sorted array and replaced it with new values: " + sorted);
 
-        JSArray array8 = array7.unshift(0.0);
+        JSArray<Double> array8 = array7.unshift(0.0);
         System.out.println("Add element to the head of the seventh array: " + array8);
 
-        Iterator it2 = array8.values();
+        Iterator<Double> it2 = array8.values();
         System.out.println("Values of eigthth array:");
         while (it2.hasNext()) {
             System.out.println(it2.next());
         }
 
-        JSArray array9 = array8.with(2, 40.0);
+        JSArray<Double> array9 = array8.with(2, 40.0);
         System.out.println("New array by setting one value at given index: " + array9);
 
-        Double[][][][] d = {{{{1.0,2.0},{3.0,4.0}},{{5.0,6.0},{7.0,8.0}}},{{{9.0,10.0},{11.0,12.0}},{{13.0,14.0},{15.0,16.0}}}};
-        JSArray<Double[][][]> array10 = new JSArray(d);
-        JSArray flatten = array10.flat(3);
+        Double[][][][] d = {
+            {{{1.0, 2.0}, {3.0, 4.0}}, {{5.0, 6.0}, {7.0, 8.0}}},
+            {{{9.0, 10.0}, {11.0, 12.0}}, {{13.0, 14.0}, {15.0, 16.0}}}
+        };
+        JSArray<Double[][][]> array10 = new JSArray<>(d);
+        JSArray<Double[][][]> flatten = array10.flat(3);
         System.out.println("Flattend 4 dimensionnal array: " + flatten);
     }
 }

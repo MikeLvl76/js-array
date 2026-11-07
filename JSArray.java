@@ -31,11 +31,9 @@ public class JSArray<T> implements JSArrayUtils {
         public U next() {
             if (!this.hasNext() || this.index >= length) {
                 return null;
-
             }
             return mapper.apply(index++);
         }
-
     }
 
     @SuppressWarnings("unchecked")
@@ -72,16 +70,16 @@ public class JSArray<T> implements JSArrayUtils {
     public static <T extends Object> JSArray<T> from(JSArray<?> array, BiFunction<T, Integer, ?> mapper)
             throws SizeLimitExceededException {
 
-        T[] out = JSArrayUtils.copyArray((T[]) array.toPrimitiveArray());
+        T[] out = JSArrayUtils.copyArray((T[]) array.toArray());
 
         for (int i = 0; i < array.length; i++) {
-            out[i] = (T) mapper.apply((T) array.toPrimitiveArray()[i], i);
+            out[i] = (T) mapper.apply((T) array.toArray()[i], i);
         }
 
         return new JSArray<>(out);
     }
 
-    public T[] toPrimitiveArray() {
+    public T[] toArray() {
         return this.elements;
     }
 
@@ -93,7 +91,7 @@ public class JSArray<T> implements JSArrayUtils {
     }
 
     public JSArray<T> concat(JSArray<T> array) throws SizeLimitExceededException {
-        T[] result = concatArrays(this.elements, array.toPrimitiveArray());
+        T[] result = concatArrays(this.elements, array.toArray());
         return new JSArray<>(result);
     }
 
@@ -119,20 +117,17 @@ public class JSArray<T> implements JSArrayUtils {
     }
 
     public Iterator<Entry<Integer, T>> entries() {
-        return new JSArrayIterator<Entry<Integer, T>>(i -> Map.entry(i, this.elements[i]));
+        return new JSArrayIterator<>(i -> Map.entry(i, this.elements[i]));
     }
 
-    public boolean every(BiFunction<T, Integer, Boolean> predicate) {
-        boolean isValid = true;
-
+    public boolean every(BiPredicate<T, Integer> predicate) {
         for (int i = 0; i < this.length; i++) {
-            isValid = predicate.apply(this.elements[i], i).booleanValue();
-            if (!isValid) {
-                return isValid;
+            if (!predicate.test(this.elements[i], i)) {
+                return false;
             }
         }
 
-        return isValid;
+        return true;
     }
 
     public JSArray<T> fill(T value, int start, int end) throws SizeLimitExceededException {
@@ -221,8 +216,8 @@ public class JSArray<T> implements JSArrayUtils {
         T[] out = (T[]) new Object[0];
 
         for (int i = 1; i < array.length; i++) {
-            T[] concatenated = concatArrays(deepFlat((T[]) array[i - 1], depth - 1),
-                    deepFlat((T[]) array[i], depth - 1));
+            T[] concatenated =
+                    concatArrays(deepFlat((T[]) array[i - 1], depth - 1), deepFlat((T[]) array[i], depth - 1));
 
             out = concatArrays(out, concatenated);
         }
@@ -260,11 +255,11 @@ public class JSArray<T> implements JSArrayUtils {
         return -1;
     }
 
-    public String join(String defaultSeparator) {
-        String sep = ",";
+    public String join(String sep) {
+        String defaultSeparator = ",";
 
-        if (defaultSeparator != null) {
-            sep = defaultSeparator;
+        if (sep != null) {
+            defaultSeparator = sep;
         }
 
         StringBuilder builder = new StringBuilder();
@@ -272,7 +267,7 @@ public class JSArray<T> implements JSArrayUtils {
         for (int i = 0; i < this.length; i++) {
             builder.append(this.elements[i]);
             if (i < this.length - 1) {
-                builder.append(sep);
+                builder.append(defaultSeparator);
             }
         }
 
@@ -330,7 +325,6 @@ public class JSArray<T> implements JSArrayUtils {
                 break;
             }
             array[i] = this.elements[i];
-
         }
 
         this.elements = array;
@@ -496,7 +490,7 @@ public class JSArray<T> implements JSArrayUtils {
         JSArray<T> left = this.slice(0, start);
         JSArray<T> right = this.slice(start + deleteCount, length);
 
-        T[] out = concatArrays(concatArrays(left.toPrimitiveArray(), items), right.toPrimitiveArray());
+        T[] out = concatArrays(concatArrays(left.toArray(), items), right.toArray());
 
         this.elements = out;
         this.length = out.length;
@@ -506,11 +500,11 @@ public class JSArray<T> implements JSArrayUtils {
 
     @SuppressWarnings("unchecked")
     public JSArray<T> unshift(T t) throws SizeLimitExceededException {
-        return new JSArray<>((T[]) new Object[] { t }).concat(this);
+        return new JSArray<>((T[]) new Object[] {t}).concat(this);
     }
 
     public Iterator<T> values() {
-        return new JSArrayIterator<T>(i -> this.elements[i]);
+        return new JSArrayIterator<>(i -> this.elements[i]);
     }
 
     public JSArray<T> with(int index, T t) throws SizeLimitExceededException {
@@ -524,6 +518,7 @@ public class JSArray<T> implements JSArrayUtils {
         return new JSArray<>(out);
     }
 
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("[");
 
@@ -538,5 +533,4 @@ public class JSArray<T> implements JSArrayUtils {
 
         return builder.toString();
     }
-
 }
