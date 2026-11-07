@@ -131,6 +131,26 @@ public class Main {
 }
 ```
 
+6. Create an array with elements typed as JSArray
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        JSArray<Integer> numbers = new JSArray(1, 2, 3, 4, 5);
+        JSArray<JSArray<Integer>> array = new JSArray();
+        array.push(numbers);
+
+        /* 
+        * Expected output:
+        *
+        * [[1, 2, 3, 4, 5]]
+        *
+        */
+        System.out.println(array);
+    }
+}
+```
+
 ## Improvements
 
 - Optimize code
