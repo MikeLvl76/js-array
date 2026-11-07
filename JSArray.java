@@ -43,15 +43,15 @@ public class JSArray<T> implements JSArrayUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public JSArray(int _length) throws SizeLimitExceededException {
+    public JSArray(int length) throws SizeLimitExceededException {
         if (length > MAX_CAPACITY) {
             throw new SizeLimitExceededException("cannot exceed max size: " + MAX_CAPACITY);
         }
-        if (_length < 0) {
+        if (length < 0) {
             throw new IllegalArgumentException("negative length not allowed");
         }
-        this.length = _length;
-        this.elements = (T[]) new Object[_length];
+        this.length = length;
+        this.elements = (T[]) new Object[length];
     }
 
     public JSArray(@SuppressWarnings("unchecked") T... values) throws SizeLimitExceededException {

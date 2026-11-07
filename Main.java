@@ -163,5 +163,11 @@ public class Main {
         JSArray<Double[][][]> array10 = new JSArray<>(d);
         JSArray<Double[][][]> flatten = array10.flat(3);
         System.out.println("Flattend 4 dimensionnal array: " + flatten);
+
+        JSArray<JSArray<Integer>> array11 = new JSArray<>();
+        JSArray<Integer> array12 = new JSArray<>(1, 2, 3, 4, 5);
+        array11.push(array12);
+
+        System.out.println("Creating a JSArray with another JSArray type: " + array11);
     }
 }
